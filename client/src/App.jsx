@@ -9,6 +9,8 @@ import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Connections from "./pages/Connections";
+import Services from "./pages/Services";
+import Professionals from "./pages/Professionals";
 
 import PrivateRoute from "./routes/PrivateRoute";
 
@@ -52,6 +54,17 @@ function AppWrapper() {
           element={
             <PrivateRoute>
               <Settings />
+            </PrivateRoute>
+          }
+        />
+
+        <Route path="/services" element={<Services />} />
+
+        <Route
+          path="/professionals/:role"
+          element={
+            <PrivateRoute>
+              <Professionals />
             </PrivateRoute>
           }
         />

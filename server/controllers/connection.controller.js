@@ -4,10 +4,10 @@ import User from "../models/User.model.js";
 /*  SEND CONNECTION REQUEST */
 export const sendRequest = async (req, res) => {
   try {
-    const senderId = req.user.id;
+    const senderId = req.user._id;
     const receiverId = req.params.id;
 
-    if (senderId === receiverId) {
+    if (senderId.toString === receiverId.toString) {
       return res.status(400).json({ message: "Cannot connect with yourself" });
     }
 
@@ -53,7 +53,7 @@ export const acceptRequest = async (req, res) => {
       return res.status(404).json({ message: "Request not found" });
     }
 
-    if (connection.receiver.toString() !== req.user.id) {
+    if (connection.receiver.toString() !== req.user._id.toString) {
       return res.status(403).json({ message: "Not authorized" });
     }
 
@@ -72,7 +72,7 @@ export const acceptRequest = async (req, res) => {
 /* GET MY CONNECTIONS */
 export const getMyConnections = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     const connections = await Connection.find({
       $or: [{ sender: userId }, { receiver: userId }]
@@ -90,7 +90,7 @@ export const getMyConnections = async (req, res) => {
 export const searchUsers = async (req, res) => {
   try {
     const keyword = req.query.keyword || "";
-    const currentUserId = req.user.id; // from auth middleware
+    const currentUserId = req.user._id; // from auth middleware
 
     if (!keyword.trim()) {
       return res.json([]);
@@ -100,8 +100,8 @@ export const searchUsers = async (req, res) => {
       _id: { $ne: currentUserId }, // exclude self
       $or: [
         { name: { $regex: keyword, $options: "i" } }, // search by name
-        { role: { $regex: keyword, $options: "i" } },
-        { professionalType: { $regex: keyword, $options: "i" } }, // search by role
+        { role: { $regex: keyword, $options: "i" } },  // search by role
+        { professionalType: { $regex: keyword, $options: "i" } }, // search by profession type
       ],
     })
       .select("name role") // do not include password
@@ -111,5 +111,29 @@ export const searchUsers = async (req, res) => {
   } catch (error) {
     console.error("Search error:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Get all professionals by their profession/role
+export const getProfessionalsByRole = async (req, res) => {
+  try {
+    const { role } = req.params;
+    
+    console.log("Fetching professionals for role:", role);
+ 
+    const professionals = await User.find({
+      role: "professional", // Users with role="professional"
+      $or: [
+        { professionalType: { $regex: new RegExp(`^${role}$`, 'i') } }, // Case-insensitive match
+        { profession: { $regex: new RegExp(`^${role}$`, 'i') } },
+        { jobTitle: { $regex: new RegExp(`^${role}$`, 'i') } }
+      ]
+    }).select("-password"); // Exclude password
+    
+    console.log(`Found ${professionals.length} professionals`);
+    res.json(professionals);
+  } catch (error) {
+    console.error("Error in getProfessionalsByRole:", error);
+    res.status(500).json({ message: error.message });
   }
 };

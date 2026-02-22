@@ -22,7 +22,6 @@ const Dashboard = () => {
   // All possible cards
   const allCards = [
     { title: "Services", path: "/services", icon: <Briefcase size={28} />, color: "bg-blue-600", roles: ["user"] },
-    { title: "Professionals", path: "/professionalscd", icon: <Users size={28} />, color: "bg-blue-600", roles: ["user"] },
     { title: "Feed", path: "/feed", icon: <FileText size={28} />, color: "bg-blue-600", roles: ["user", "professional"] },
     { title: "Appointments", path: "/appointments", icon: <Calendar size={28} />, color: "bg-blue-600", roles: ["user", "professional"] },
     { title: "Connections", path: "/connections", icon: <Users size={28} />, color: "bg-blue-600", roles: ["user", "professional"] },

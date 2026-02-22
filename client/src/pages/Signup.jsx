@@ -165,6 +165,8 @@ function Signup() {
                 <option value="Plumber">Plumber</option>
                 <option value="Electrician">Electrician</option>
                 <option value="Designer">Designer</option>
+                <option value="Electrician">Photographer</option>
+                <option value="Designer">Babysitter</option>
               </select>
             </div>
           )}
