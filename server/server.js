@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import authRoutes from "./routes/auth.routes.js";
+import connectionRoutes from "./routes/connection.routes.js";
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 
 /* ROUTES */
 app.use("/api/auth", authRoutes);
+app.use("/api/connections", connectionRoutes);
 
 /* TEST ROUTE (IMPORTANT FOR DEBUG) */
 app.post("/test", (req, res) => {

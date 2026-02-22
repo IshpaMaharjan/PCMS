@@ -10,6 +10,7 @@ function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
+  const [profession, setProfession] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSignup = async (e) => {
@@ -20,21 +21,25 @@ function Signup() {
       return;
     }
 
+    if (role === "professional" && !profession) {
+      alert("Please select a profession");
+      return;
+    }
+
     try {
       setLoading(true);
 
       const baseUrl =
         import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-      await axios.post(
-        `${baseUrl}/api/auth/signup`,
-        { name, email, password, role },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      await axios.post(`${baseUrl}/api/auth/signup`, {
+        name,
+        email,
+        password,
+        role,
+        professionalType:
+          role === "professional" ? profession : undefined,
+      });
 
       alert("Signup successful");
       navigate("/login");
@@ -49,7 +54,6 @@ function Signup() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
 
-        {/* Logo */}
         <div className="text-center mb-6">
           <div className="flex justify-center mb-3">
             <div className="bg-blue-600 text-white rounded-xl p-3">
@@ -63,7 +67,8 @@ function Signup() {
         </div>
 
         <form onSubmit={handleSignup}>
-          {/* Full Name */}
+
+          {/* Name */}
           <div className="mb-4">
             <label className="text-sm text-gray-600">Full Name</label>
             <div className="relative mt-1">
@@ -72,7 +77,6 @@ function Signup() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Enter your full name"
                 className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -87,7 +91,6 @@ function Signup() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
                 className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -102,7 +105,6 @@ function Signup() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Create a password"
                 className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -116,13 +118,15 @@ function Signup() {
 
             <div className="grid grid-cols-2 gap-4">
               <div
-                onClick={() => setRole("user")}
-                className={`border rounded-xl p-4 text-center cursor-pointer transition
-                  ${
-                    role === "user"
-                      ? "border-blue-600 bg-blue-50"
-                      : "hover:border-blue-400"
-                  }`}
+                onClick={() => {
+                  setRole("user");
+                  setProfession("");
+                }}
+                className={`border rounded-xl p-4 text-center cursor-pointer transition ${
+                  role === "user"
+                    ? "border-blue-600 bg-blue-50"
+                    : "hover:border-blue-400"
+                }`}
               >
                 <User className="mx-auto mb-2" size={22} />
                 <p className="text-sm font-medium">User</p>
@@ -130,18 +134,40 @@ function Signup() {
 
               <div
                 onClick={() => setRole("professional")}
-                className={`border rounded-xl p-4 text-center cursor-pointer transition
-                  ${
-                    role === "professional"
-                      ? "border-blue-600 bg-blue-50"
-                      : "hover:border-blue-400"
-                  }`}
+                className={`border rounded-xl p-4 text-center cursor-pointer transition ${
+                  role === "professional"
+                    ? "border-blue-600 bg-blue-50"
+                    : "hover:border-blue-400"
+                }`}
               >
                 <Briefcase className="mx-auto mb-2" size={22} />
                 <p className="text-sm font-medium">Professional</p>
               </div>
             </div>
           </div>
+
+          {/* Profession */}
+          {role === "professional" && (
+            <div className="mb-6">
+              <label className="text-sm text-gray-600 block mb-2">
+                Select Profession
+              </label>
+
+              <select
+                value={profession}
+                onChange={(e) => setProfession(e.target.value)}
+                className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Choose profession</option>
+                <option value="Teacher">Teacher</option>
+                <option value="Developer">Developer</option>
+                <option value="Carpenter">Carpenter</option>
+                <option value="Plumber">Plumber</option>
+                <option value="Electrician">Electrician</option>
+                <option value="Designer">Designer</option>
+              </select>
+            </div>
+          )}
 
           <button
             type="submit"

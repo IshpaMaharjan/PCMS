@@ -4,12 +4,23 @@ import jwt from "jsonwebtoken";
 
 // SIGNUP
 export const Signup = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password, role, professionalType } = req.body;
 
   try {
+    if (!name || !email || !password || !role) {
+      return res.status(400).json({ message: "All required fields missing" });
+    }
+
+    if (role === "professional" && !professionalType) {
+      return res
+        .status(400)
+        .json({ message: "Professional type is required" });
+    }
+
     const userExists = await User.findOne({ email });
-    if (userExists)
+    if (userExists) {
       return res.status(400).json({ message: "User already exists" });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -18,11 +29,16 @@ export const Signup = async (req, res) => {
       email,
       password: hashedPassword,
       role,
+      professionalType:
+        role === "professional" ? professionalType : undefined,
     });
 
-    res.status(201).json({ message: "Account created successfully" });
+    res.status(201).json({
+      message: "Account created successfully",
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Signup Error:", error.message);
+    res.status(500).json({ message: "Server Error" });
   }
 };
 
@@ -36,7 +52,6 @@ export const Login = async (req, res) => {
     if (!user)
       return res.status(400).json({ message: "Invalid credentials" });
 
-    // 🔒 ROLE CHECK (THIS FIXES YOUR ISSUE)
     if (user.role !== role) {
       return res
         .status(403)
@@ -44,6 +59,7 @@ export const Login = async (req, res) => {
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
+
     if (!isMatch)
       return res.status(400).json({ message: "Invalid credentials" });
 
@@ -60,10 +76,11 @@ export const Login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        professionalType: user.professionalType,
       },
     });
-
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("Login Error:", error.message);
+    res.status(500).json({ message: "Server Error" });
   }
 };

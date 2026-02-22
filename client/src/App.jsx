@@ -1,24 +1,34 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+
+import Header from "./components/Header.jsx";
+import Footer from "./components/Footer.jsx";
 
 import Landing from "./pages/Landing";
+import Dashboard from "./pages/Dashboard";
+import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import Dashboard from "./pages/Dashboard";
+import Connections from "./pages/Connections";
+
 import PrivateRoute from "./routes/PrivateRoute";
 
-function App() {
+function AppWrapper() {
+  const location = useLocation();
+
+  // Hide header & footer on these pages
+  const hideLayout =
+    location.pathname === "/login" ||
+    location.pathname === "/signup";
+
   return (
-    <BrowserRouter>
+    <>
+      {!hideLayout && <Header />}
+
       <Routes>
-
-        {/* DEFAULT PAGE */}
         <Route path="/" element={<Landing />} />
-
-        {/* AUTH */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
-        {/* PROTECTED DASHBOARD */}
         <Route
           path="/dashboard"
           element={
@@ -28,7 +38,34 @@ function App() {
           }
         />
 
+        <Route
+          path="/connections"
+          element={
+            <PrivateRoute>
+              <Connections />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/settings"
+          element={
+            <PrivateRoute>
+              <Settings />
+            </PrivateRoute>
+          }
+        />
       </Routes>
+
+      {!hideLayout && <Footer />}
+    </>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppWrapper />
     </BrowserRouter>
   );
 }
