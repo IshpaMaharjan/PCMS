@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate  } from "react-router-dom";
 import axios from "axios";
 
 export default function Professionals() {
   const { role } = useParams();
+  const navigate = useNavigate();
   const [professionals, setProfessionals] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,6 +31,11 @@ export default function Professionals() {
     fetchProfessionals();
   }, [role]);
 
+  const handleCardClick = (professionalId) => {
+    console.log("Navigating to professional:", professionalId);
+    navigate(`/professional/${professionalId}`);
+  };
+
   return (
     <div className="p-10">
       <h2 className="text-3xl font-bold mb-6 capitalize">
@@ -46,10 +52,15 @@ export default function Professionals() {
         {professionals.map((pro) => (
           <div
             key={pro._id}
+            onClick={() => handleCardClick(pro._id)}
             className="bg-white p-6 rounded-xl shadow"
           >
             <h3 className="text-lg font-semibold">{pro.name}</h3>
             <p className="text-gray-500">{pro.role}</p>
+
+            <p className="text-xs text-gray-400 mt-4 text-center">
+              Click to view profile
+            </p>
           </div>
         ))}
       </div>

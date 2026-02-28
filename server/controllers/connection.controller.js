@@ -7,7 +7,7 @@ export const sendRequest = async (req, res) => {
     const senderId = req.user._id;
     const receiverId = req.params.id;
 
-    if (senderId.toString === receiverId.toString) {
+    if (senderId.equals(receiverId)) {
       return res.status(400).json({ message: "Cannot connect with yourself" });
     }
 

@@ -15,37 +15,43 @@ export default function Services() {
   ];
 
   return (
-    <div className="p-10 bg-gray-50 min-h-screen">
-      <h2 className="text-3xl font-bold mb-10 text-center">
-        Explore Our Services
-      </h2>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-10">
+      
+      {/* TITLE */}
+      <div className="text-center mb-14">
+        <h2 className="text-4xl font-bold text-gray-800 mb-3">
+          Explore Our Professional Services
+        </h2>
+        <p className="text-gray-500 text-lg">
+          Find trusted professionals across multiple industries.
+        </p>
+      </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+      {/* GRID */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
         {services.map((service, index) => (
           <div
             key={index}
-            className="bg-white rounded-2xl shadow-md hover:shadow-xl transition duration-300 overflow-hidden flex flex-col"
+            className="group bg-white rounded-3xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden hover:-translate-y-2"
           >
             {/* IMAGE */}
-            <div className="h-40 overflow-hidden">
+            <div className="h-48 overflow-hidden">
               <img
                 src={service.image}
                 alt={service.name}
-                className="w-full h-full object-cover hover:scale-110 transition duration-300"
+                className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
               />
             </div>
 
             {/* CONTENT */}
-            <div className="p-4 flex flex-col flex-grow justify-between">
-              <h3 className="text-lg font-semibold text-center mb-4">
+            <div className="p-6 flex flex-col items-center text-center">
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">
                 {service.name}
               </h3>
 
               <button
-                onClick={() =>
-                  navigate(`/professionals/${service.name}`)
-                }
-                className="bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+                onClick={() => navigate(`/professionals/${service.name}`)}
+                className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full font-medium hover:scale-105 transition duration-300 shadow-md hover:shadow-lg"
               >
                 View Professionals
               </button>

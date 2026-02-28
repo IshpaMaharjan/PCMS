@@ -3,19 +3,21 @@ import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import authRoutes from "./routes/auth.routes.js";
+import userRoutes from "./routes/user.routes.js";
 import connectionRoutes from "./routes/connection.routes.js";
 
 dotenv.config();
 
 const app = express();
 
-/* 🔑 BODY PARSERS — MUST BE BEFORE ROUTES */
+/* BODY PARSERS — MUST BE BEFORE ROUTES */
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 /* ROUTES */
 app.use("/api/auth", authRoutes);
+app.use("/api", userRoutes);
 app.use("/api/connections", connectionRoutes);
 
 /* TEST ROUTE (IMPORTANT FOR DEBUG) */
