@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import connectionRoutes from "./routes/connection.routes.js";
+import postRoutes from "./routes/post.routes.js";
 
 dotenv.config();
 
@@ -19,6 +20,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api", userRoutes);
 app.use("/api/connections", connectionRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/uploads", express.static("uploads"));
 
 /* TEST ROUTE (IMPORTANT FOR DEBUG) */
 app.post("/test", (req, res) => {

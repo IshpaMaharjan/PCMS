@@ -13,6 +13,7 @@ import Services from "./pages/Services";
 import Professionals from "./pages/Professionals";
 import ProfessionalProfile from "./pages/ProfessionalProfile";
 import EditProfile from "./pages/EditProfile";
+import Feed from "./pages/Feed";
 
 import PrivateRoute from "./routes/PrivateRoute";
 
@@ -85,6 +86,15 @@ function AppWrapper() {
           element={
             <PrivateRoute>
               <EditProfile />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/feed"
+          element={
+            <PrivateRoute>
+              <Feed />
             </PrivateRoute>
           }
         />

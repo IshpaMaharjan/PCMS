@@ -11,14 +11,12 @@ export const sendRequest = async (req, res) => {
     if (senderId.equals(receiverId)) {
       return res.status(400).json({ message: "Cannot connect with yourself" });
     }
-    console.log("1");
+
     // Check if receiver exists
     const receiverExists = await User.findById(receiverId);
-    console.log("2");
     if (!receiverExists) {
       return res.status(404).json({ message: "User not found" });
     }
-    console.log("3");
     // Prevent duplicate in both directions
     const existing = await Connection.findOne({
       $or: [
@@ -26,24 +24,20 @@ export const sendRequest = async (req, res) => {
         { sender: receiverId, receiver: senderId }
       ]
     });
-    console.log("4");
     if (existing) {
       return res.status(400).json({ message: "Request already exists" });
     }
-    console.log("5");
     const connection = await Connection.create({
       sender: senderId,
       receiver: receiverId,
       status: "pending",
     });
-    console.log("6");
     // Populate sender & receiver for frontend UI
     await connection.populate([
       { path: "sender", select: "name role" },
       { path: "receiver", select: "name role" }
     ]);
 
-    console.log("7");
     res.status(201).json(connection);
   } catch (error) {
     console.error("SEND REQUEST ERROR:", error);
