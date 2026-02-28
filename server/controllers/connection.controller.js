@@ -60,7 +60,7 @@ export const acceptRequest = async (req, res) => {
       return res.status(404).json({ message: "Request not found" });
     }
 
-    if (connection.receiver.toString() !== req.user._id.toString) {
+    if (connection.receiver.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: "Not authorized" });
     }
 
@@ -68,7 +68,10 @@ export const acceptRequest = async (req, res) => {
     await connection.save();
 
     // Populate for frontend UI
-    await connection.populate("sender", "name role").populate("receiver", "name role");
+    await connection.populate([
+      { path: "sender", select: "name role" },
+      { path: "receiver", select: "name role" }
+    ]);
 
     res.json(connection);
   } catch (error) {

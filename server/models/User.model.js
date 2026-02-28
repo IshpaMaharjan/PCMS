@@ -42,6 +42,47 @@ const userSchema = new mongoose.Schema(
         return this.role === "professional";
       },
     },
+
+  // Profile fields
+  phone: {
+    type: String,
+    default: "",
+  },
+  address: {
+    type: String,
+    default: "",
+  },
+  bio: {
+    type: String,
+    default: "",
+  },
+  skills: [{
+    type: String,
+  }],
+  experience: {
+    type: Number,
+    default: 0,
+  },
+  qualification: {
+    type: String,
+    default: "",
+  },
+  expertise: {
+    type: String,
+    default: "",
+  },
+  hourlyRate: {
+    type: Number,
+    default: 0,
+  },
+  rating: {
+    type: Number,
+    default: 0,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  }
   },
   { timestamps: true }
 );
