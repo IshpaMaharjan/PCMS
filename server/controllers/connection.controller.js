@@ -4,19 +4,21 @@ import User from "../models/User.model.js";
 /*  SEND CONNECTION REQUEST */
 export const sendRequest = async (req, res) => {
   try {
+    console.log("Received connection request from user:", req.user);
     const senderId = req.user._id;
     const receiverId = req.params.id;
 
     if (senderId.equals(receiverId)) {
       return res.status(400).json({ message: "Cannot connect with yourself" });
     }
-
+    console.log("1");
     // Check if receiver exists
     const receiverExists = await User.findById(receiverId);
+    console.log("2");
     if (!receiverExists) {
       return res.status(404).json({ message: "User not found" });
     }
-
+    console.log("3");
     // Prevent duplicate in both directions
     const existing = await Connection.findOne({
       $or: [
@@ -24,22 +26,27 @@ export const sendRequest = async (req, res) => {
         { sender: receiverId, receiver: senderId }
       ]
     });
-
+    console.log("4");
     if (existing) {
       return res.status(400).json({ message: "Request already exists" });
     }
-
+    console.log("5");
     const connection = await Connection.create({
       sender: senderId,
       receiver: receiverId,
       status: "pending",
     });
-
+    console.log("6");
     // Populate sender & receiver for frontend UI
-    await connection.populate("sender", "name role").populate("receiver", "name role");
+    await connection.populate([
+      { path: "sender", select: "name role" },
+      { path: "receiver", select: "name role" }
+    ]);
 
+    console.log("7");
     res.status(201).json(connection);
   } catch (error) {
+    console.error("SEND REQUEST ERROR:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -118,9 +125,9 @@ export const searchUsers = async (req, res) => {
 export const getProfessionalsByRole = async (req, res) => {
   try {
     const { role } = req.params;
-    
+
     console.log("Fetching professionals for role:", role);
- 
+
     const professionals = await User.find({
       role: "professional", // Users with role="professional"
       $or: [
@@ -129,7 +136,7 @@ export const getProfessionalsByRole = async (req, res) => {
         { jobTitle: { $regex: new RegExp(`^${role}$`, 'i') } }
       ]
     }).select("-password"); // Exclude password
-    
+
     console.log(`Found ${professionals.length} professionals`);
     res.json(professionals);
   } catch (error) {

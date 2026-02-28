@@ -24,11 +24,10 @@ const connectionSchema = new mongoose.Schema(
 
 connectionSchema.index({ sender: 1, receiver: 1 }, { unique: true });
 
-connectionSchema.pre("save", function (next) {
+connectionSchema.pre("save", function () {
   if (this.sender.equals(this.receiver)) {
-    return next(new Error("Cannot connect with yourself"));
+    throw new Error("Cannot connect with yourself");
   }
-  next();
 });
 
 const Connection = mongoose.model("Connection", connectionSchema);

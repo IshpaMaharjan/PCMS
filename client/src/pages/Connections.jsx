@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
-export default function Connections({ currentUser }) {
+export default function Connections() {
   const [keyword, setKeyword] = useState("");
   const [users, setUsers] = useState([]);
   const [connections, setConnections] = useState([]);
   const [connectionStatusMap, setConnectionStatusMap] = useState({});
   const [loading, setLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const currentUser = JSON.parse(localStorage.getItem("user"));
 
   const dropdownRef = useRef(null);
 
@@ -21,9 +22,10 @@ export default function Connections({ currentUser }) {
       });
 
       setConnections(res.data);
-
+      console.log("current user", currentUser);
       const statusMap = {};
       res.data.forEach((conn) => {
+        console.log({sender: conn.sender, receiver: conn.receiver, status: conn.status});
         if (conn.sender?._id && conn.receiver?._id) {
           const otherUser =
             conn.sender._id === currentUser.id
