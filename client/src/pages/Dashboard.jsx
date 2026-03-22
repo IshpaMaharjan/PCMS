@@ -1,5 +1,5 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Users,
   Briefcase,
@@ -11,6 +11,7 @@ import {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [user] = React.useState(() => {
     const storedUser = localStorage.getItem("user");
@@ -20,16 +21,22 @@ const Dashboard = () => {
   const role = user?.role;
 
   const allCards = [
-    { title: "Services", path: "/services", icon: <Briefcase size={28} />, roles: ["user"] },
-    { title: "Feed", path: "/feed", icon: <FileText size={28} />, roles: ["user", "professional"] },
-    { title: "Appointments", path: "/appointments", icon: <Calendar size={28} />, roles: ["user", "professional"] },
+    { title: "Services", path: "/services", icon: <Briefcase size={28} />, roles: ["user", "professional", "admin"] },
+    { title: "Feed", path: "/feed", icon: <FileText size={28} />, roles: ["user", "professional", "admin"] },
+    { title: "Book Appointments", path: "/appointments", icon: <Calendar size={28} />, roles: ["user", "professional"] },
+    { title: "My Appointments", path: "/my-appointments", icon: <Calendar size={28} />, roles: ["user"] },
     { title: "Connections", path: "/connections", icon: <Users size={28} />, roles: ["user", "professional"] },
-    { title: "Vacancies", path: "/vacancies", icon: <BriefcaseBusiness size={28} />, roles: ["user", "professional"] },
+    { title: "Vacancies", path: "/vacancies", icon: <BriefcaseBusiness size={28} />, roles: ["user", "professional", "admin"] },
     { title: "Edit Profile", path: "/edit-profile", icon: <Award size={28} />, roles: ["user", "professional"] },
     { title: "Generate Resume", path: "/resume", icon: <Award size={28} />, roles: ["user", "professional"] },
   ];
 
   const filteredCards = allCards.filter(card => card.roles.includes(role));
+
+  // ✅ Scroll to top whenever route changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -58,7 +65,6 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-
 
       {/* FEATURES SECTION */}
       <div className="max-w-6xl mx-auto px-8 pb-16">

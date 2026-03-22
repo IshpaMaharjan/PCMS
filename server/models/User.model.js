@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["user", "professional"],
+      enum: ["user", "professional", "admin"],
       required: true,
     },
 
@@ -37,6 +37,8 @@ const userSchema = new mongoose.Schema(
         "Plumber",
         "Electrician",
         "Designer",
+        "Photographer",
+        "Babysitter",
       ],
       required: function () {
         return this.role === "professional";

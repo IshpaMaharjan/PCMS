@@ -14,6 +14,11 @@ import Professionals from "./pages/Professionals";
 import ProfessionalProfile from "./pages/ProfessionalProfile";
 import EditProfile from "./pages/EditProfile";
 import Feed from "./pages/Feed";
+import BookAppointment from "./pages/BookAppointment";
+import MyAppointments from "./pages/MyAppointments.jsx";
+import ProfessionalAppointments from "./pages/ProfessionalAppointments";
+import {ScrollToTop} from "./components/ScrollToTop";
+import AdminFeed from "./pages/AdminFeed";
 
 import PrivateRoute from "./routes/PrivateRoute";
 
@@ -28,6 +33,7 @@ function AppWrapper() {
   return (
     <>
       {!hideLayout && <Header />}
+      <ScrollToTop />
 
       <Routes>
         <Route path="/" element={<Landing />} />
@@ -98,6 +104,30 @@ function AppWrapper() {
             </PrivateRoute>
           }
         />
+
+        <Route
+          path="/appointments"
+          element={
+            <PrivateRoute>
+              {JSON.parse(localStorage.getItem("user"))?.role === "professional"
+                ? <ProfessionalAppointments />
+                : <BookAppointment />}
+            </PrivateRoute>
+          }
+        />
+
+        <Route 
+          path="/my-appointments" 
+          element={<MyAppointments/>
+          } 
+        />
+
+        <Route 
+          path="/admin/feed" 
+          element={<AdminFeed />
+          } 
+        />
+
       </Routes>
 
       {!hideLayout && <Footer />}

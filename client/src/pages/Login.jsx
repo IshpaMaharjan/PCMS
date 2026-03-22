@@ -33,6 +33,7 @@ function Login() {
 
       // Save token + user
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem("userId", res.data.user._id);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       navigate("/dashboard");
@@ -117,6 +118,17 @@ function Login() {
               >
                 <Briefcase className="mx-auto mb-2" size={22} />
                 <p className="text-sm font-medium">Professional</p>
+              </div>
+
+              <div
+                onClick={() => setRole("admin")}
+                className={`border rounded-xl p-4 text-center cursor-pointer transition
+                  ${role === "admin"
+                    ? "border-blue-600 bg-blue-50"
+                    : "hover:border-blue-400"}`}
+              >
+                <User className="mx-auto mb-2" size={22} />
+                <p className="text-sm font-medium">Admin</p>
               </div>
             </div>
           </div>
