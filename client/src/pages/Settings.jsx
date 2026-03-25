@@ -7,9 +7,7 @@ const Setting = () => {
   const user = JSON.parse(localStorage.getItem("user")) || {};
 
   const settingsOptions = [
-    { title: "My Profile", icon: <User size={24} />, path: "/profile" },
-    { title: "Themes", icon: <Star size={24} />, path: "/themes" },
-    { title: "Help & Support", icon: <HelpCircle size={24} />, path: "/help" },
+    { title: "My Profile", icon: <User size={24} />, path: user.id ? `/professional/${user.id}` : "/dashboard" },
     { title: "Logout", icon: <LogOut size={24} />, path: "/logout" },
   ];
 

@@ -7,7 +7,7 @@ import userRoutes from "./routes/user.routes.js";
 import connectionRoutes from "./routes/connection.routes.js";
 import postRoutes from "./routes/post.routes.js";
 import appointmentRoutes from "./routes/appointment.routes.js";
-// import myAppointmentsRoutes from "./routes/myAppointments.js";
+import vacancyRoutes from "./routes/vacancy.routes.js";
 
 dotenv.config();
 
@@ -25,7 +25,8 @@ app.use("/api/connections", connectionRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/uploads", express.static("uploads"));
 app.use("/api/appointments",appointmentRoutes);
-// app.use("/api/my-appointments", myAppointmentsRoutes);
+app.use("/api/vacancies", vacancyRoutes);
+
 
 /* TEST ROUTE (IMPORTANT FOR DEBUG) */
 app.post("/test", (req, res) => {

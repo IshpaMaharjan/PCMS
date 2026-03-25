@@ -23,10 +23,10 @@ const Dashboard = () => {
   const allCards = [
     { title: "Services", path: "/services", icon: <Briefcase size={28} />, roles: ["user", "professional", "admin"] },
     { title: "Feed", path: "/feed", icon: <FileText size={28} />, roles: ["user", "professional", "admin"] },
-    { title: "Book Appointments", path: "/appointments", icon: <Calendar size={28} />, roles: ["user", "professional"] },
+    { title: "Appointments", path: "/appointments", icon: <Calendar size={28} />, roles: ["user", "professional"] },
     { title: "My Appointments", path: "/my-appointments", icon: <Calendar size={28} />, roles: ["user"] },
     { title: "Connections", path: "/connections", icon: <Users size={28} />, roles: ["user", "professional"] },
-    { title: "Vacancies", path: "/vacancies", icon: <BriefcaseBusiness size={28} />, roles: ["user", "professional", "admin"] },
+    { title: "Open Slots", path: "/vacancies", icon: <BriefcaseBusiness size={28} />, roles: ["user", "professional", "admin"] },
     { title: "Edit Profile", path: "/edit-profile", icon: <Award size={28} />, roles: ["user", "professional"] },
     { title: "Generate Resume", path: "/resume", icon: <Award size={28} />, roles: ["user", "professional"] },
   ];

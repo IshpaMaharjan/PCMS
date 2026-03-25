@@ -70,7 +70,7 @@ export default function MyAppointments() {
 
         {/* TITLE */}
         <h1 className="text-4xl font-bold text-center text-blue-700 mb-10">
-          📅 My Appointments
+          My Appointments
         </h1>
 
         {/* EMPTY STATE */}

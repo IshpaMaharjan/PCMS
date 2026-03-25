@@ -19,6 +19,8 @@ import MyAppointments from "./pages/MyAppointments.jsx";
 import ProfessionalAppointments from "./pages/ProfessionalAppointments";
 import {ScrollToTop} from "./components/ScrollToTop";
 import AdminFeed from "./pages/AdminFeed";
+import Vacancies from "./pages/Vacancies.jsx";
+import GenerateResume from "./pages/GenerateResume.jsx";
 
 import PrivateRoute from "./routes/PrivateRoute";
 
@@ -126,6 +128,24 @@ function AppWrapper() {
           path="/admin/feed" 
           element={<AdminFeed />
           } 
+        />
+
+        <Route
+          path="/vacancies"
+          element={
+            <PrivateRoute>
+              <Vacancies />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/resume"
+          element={
+            <PrivateRoute>
+              <GenerateResume />
+            </PrivateRoute>
+          }
         />
 
       </Routes>

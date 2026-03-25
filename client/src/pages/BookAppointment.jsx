@@ -22,7 +22,7 @@ function BookAppointment() {
 
   const token = localStorage.getItem("token");
 
-  // ================= FETCH PROFESSIONALS =================
+  /* ================= FETCH PROFESSIONALS ================= */
   useEffect(() => {
     if (!selectedService) {
       setProfessionals([]);
@@ -43,7 +43,7 @@ function BookAppointment() {
     fetchProfessionals();
   }, [selectedService]);
 
-  // ================= FETCH BOOKED =================
+  /* ================= FETCH BOOKED ================= */
   useEffect(() => {
     if (!selectedProfessional) {
       setBookedAppointments([]);
@@ -64,7 +64,7 @@ function BookAppointment() {
     fetchBooked();
   }, [selectedProfessional]);
 
-  // ================= BOOK / CANCEL =================
+  /* ================= BOOK / CANCEL ================= */
   const handleBookingToggle = async (date) => {
     if (!selectedProfessional) {
       alert("Please select a professional first!");
@@ -87,7 +87,6 @@ function BookAppointment() {
 
     try {
       if (existing) {
-        // ✅ CANCEL (correct API)
         await axios.delete(
           `http://localhost:5000/api/appointments/cancel/${existing._id}`,
           { headers: { Authorization: `Bearer ${token}` } }
@@ -99,7 +98,6 @@ function BookAppointment() {
 
         alert("Appointment cancelled successfully!");
       } else {
-        // ✅ BOOK
         const res = await axios.post(
           "http://localhost:5000/api/appointments/book",
           {
@@ -122,7 +120,7 @@ function BookAppointment() {
     }
   };
 
-  // ================= HELPERS =================
+  /* ================= HELPERS ================= */
   const disablePastDates = ({ date }) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -137,26 +135,34 @@ function BookAppointment() {
     );
 
     if (booked)
-      return "bg-green-300 text-green-900 font-semibold rounded-full";
+      return "bg-green-400 text-white font-semibold rounded-full";
 
     if (date.toDateString() === new Date().toDateString())
-      return "bg-blue-300 text-blue-900 font-semibold rounded-full";
+      return "bg-blue-400 text-white font-semibold rounded-full";
 
     return "";
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-blue-300 py-12 px-6">
-      <div className="max-w-6xl mx-auto bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl p-10">
-        <h1 className="text-4xl font-bold text-center text-blue-700 mb-10">
-          📅 Book Appointment
-        </h1>
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-white to-blue-200 py-12 px-6">
+      <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-2xl p-10 border border-gray-100">
+
+        {/* HEADER */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-blue-700 mb-2">
+            Schedule Appointment
+          </h1>
+          <p className="text-gray-500">
+            Choose a service, select a professional, and book your preferred date
+          </p>
+        </div>
 
         {/* SERVICE */}
-        <div className="mb-10">
+        <div className="mb-12">
           <label className="block text-lg font-semibold text-gray-700 mb-3">
             Select Service
           </label>
+
           <select
             value={selectedService}
             onChange={(e) => {
@@ -165,7 +171,7 @@ function BookAppointment() {
               setBookedAppointments([]);
               setSelectedDay(null);
             }}
-            className="w-80 p-3 border border-blue-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
+            className="w-80 p-3 border border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none hover:border-blue-400 transition"
           >
             <option value="">Choose a service</option>
             {services.map((s, i) => (
@@ -178,7 +184,7 @@ function BookAppointment() {
 
         {/* PROFESSIONALS */}
         {professionals.length > 0 && (
-          <div className="mb-12">
+          <div className="mb-14">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6">
               Select Professional
             </h2>
@@ -191,7 +197,7 @@ function BookAppointment() {
                   className={`p-6 rounded-2xl border cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-xl ${
                     selectedProfessional?._id === pro._id
                       ? "bg-blue-100 border-blue-500 shadow-lg"
-                      : "bg-white border-gray-200"
+                      : "bg-white border-gray-200 hover:border-blue-300"
                   }`}
                 >
                   <h3 className="text-lg font-semibold text-gray-800">
@@ -208,13 +214,13 @@ function BookAppointment() {
 
         {/* CALENDAR */}
         {selectedProfessional && (
-          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-8 shadow-inner">
+          <div className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-3xl p-8 shadow-inner">
             <h2 className="text-xl font-semibold text-blue-700 mb-6 text-center">
               Choose Appointment Date
             </h2>
 
             <div className="flex flex-col items-center">
-              <div className="bg-white p-4 rounded-xl shadow-md">
+              <div className="bg-white p-4 rounded-2xl shadow-lg border">
                 <Calendar
                   onClickDay={(date) => setSelectedDay(date)}
                   tileDisabled={disablePastDates}
@@ -226,7 +232,7 @@ function BookAppointment() {
                 <div className="flex gap-4 mt-6">
                   <button
                     onClick={() => handleBookingToggle(selectedDay)}
-                    className={`px-6 py-2 rounded-xl font-medium shadow-md transition ${
+                    className={`px-6 py-2 rounded-xl font-semibold shadow-md transition-all duration-300 ${
                       bookedAppointments.find(
                         (a) =>
                           new Date(a.date).toDateString() ===
@@ -249,14 +255,14 @@ function BookAppointment() {
 
                   <button
                     onClick={() => setSelectedDay(null)}
-                    className="px-6 py-2 bg-gray-300 hover:bg-gray-400 rounded-xl"
+                    className="px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-xl transition"
                   >
                     Clear
                   </button>
                 </div>
               )}
 
-              <p className="mt-4 text-gray-600 text-sm text-center">
+              <p className="mt-5 text-gray-500 text-sm text-center">
                 Select a date and confirm your booking or cancel an existing one.
               </p>
             </div>
