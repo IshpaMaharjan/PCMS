@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sidebar: {
-    width: "35%",
+    width: "45%",
     paddingRight: 20,
     borderRightWidth: 1,
     borderRightColor: "#ccc",
