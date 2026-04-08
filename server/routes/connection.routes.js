@@ -2,17 +2,23 @@ import express from "express";
 import {
   sendRequest,
   acceptRequest,
+  rejectRequest,
+  cancelRequest,
+  removeConnection,
   getMyConnections,
   searchUsers,
   getProfessionalsByRole
 } from "../controllers/connection.controller.js";
-import authMiddleware from "../middleware/auth.middleware.js"; // ✅ fix case
-import User from "../models/User.model.js";
+import authMiddleware from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
 router.post("/send/:id", authMiddleware, sendRequest);
 router.put("/accept/:id", authMiddleware, acceptRequest);
+router.put("/reject/:id", authMiddleware, rejectRequest);
+router.delete("/cancel/:id", authMiddleware, cancelRequest);
+router.delete("/:id", authMiddleware, removeConnection);
+
 router.get("/my", authMiddleware, getMyConnections);
 router.get("/search", authMiddleware, searchUsers);
 router.get("/profession/:role", getProfessionalsByRole);

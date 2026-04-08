@@ -11,7 +11,6 @@ import {
   Star,
   Globe,
   DollarSign,
-  Clock,
   Loader
 } from "lucide-react";
 
@@ -30,7 +29,6 @@ export default function ProfessionalProfile() {
 
   const isOwnProfile = currentUser?.id === id;
 
-  /* ================= FETCH PROFILE + CONNECTION STATUS ================= */
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -44,7 +42,6 @@ export default function ProfessionalProfile() {
           return;
         }
 
-        /* ---------- FETCH PROFILE ---------- */
         const profileRes = await axios.get(
           `http://localhost:5000/api/users/${id}`,
           {
@@ -54,7 +51,6 @@ export default function ProfessionalProfile() {
 
         setProfessional(profileRes.data);
 
-        /* ---------- FETCH CONNECTION STATUS ---------- */
         const connRes = await axios.get(
           "http://localhost:5000/api/connections/my",
           {
@@ -71,12 +67,11 @@ export default function ProfessionalProfile() {
             (conn.sender._id === id &&
               conn.receiver._id === currentUser.id)
           ) {
-            status = conn.status; // pending / accepted
+            status = conn.status;
           }
         });
 
         setConnectionStatus(status);
-
       } catch (err) {
         console.error(err);
 
@@ -96,7 +91,6 @@ export default function ProfessionalProfile() {
     if (id) fetchData();
   }, [id, navigate, currentUser?.id]);
 
-  /* ================= SEND REQUEST ================= */
   const handleConnect = async () => {
     try {
       setSendingRequest(true);
@@ -111,9 +105,7 @@ export default function ProfessionalProfile() {
         }
       );
 
-      // Update UI instantly
       setConnectionStatus("pending");
-
     } catch (err) {
       console.error("Connection error:", err);
       alert(err.response?.data?.message || "Failed to send request");
@@ -122,10 +114,9 @@ export default function ProfessionalProfile() {
     }
   };
 
-  /* ================= LOADING ================= */
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-white flex items-center justify-center">
         <div className="text-center">
           <Loader className="w-12 h-12 text-blue-600 animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Loading profile...</p>
@@ -134,20 +125,18 @@ export default function ProfessionalProfile() {
     );
   }
 
-  /* ================= ERROR ================= */
   if (error || !professional) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8">
+      <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-white py-8">
         <div className="max-w-4xl mx-auto px-4">
           <button
             onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6"
           >
-            <ArrowLeft size={20} />
-            Back
+            <ArrowLeft size={20} /> Back
           </button>
 
-          <div className="bg-white p-10 rounded-xl shadow text-center">
+          <div className="bg-white p-10 rounded-2xl shadow text-center">
             <p className="text-red-500">{error}</p>
           </div>
         </div>
@@ -155,43 +144,40 @@ export default function ProfessionalProfile() {
     );
   }
 
-  /* ================= UI ================= */
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-white py-10">
       <div className="max-w-5xl mx-auto px-4">
 
-        {/* Back */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-600 mb-6"
+          className="flex items-center gap-2 text-gray-600 mb-6 hover:text-blue-600 transition"
         >
-          <ArrowLeft size={20} />
-          Back
+          <ArrowLeft size={20} /> Back
         </button>
 
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-2xl overflow-hidden border border-gray-200">
 
           {/* HEADER */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-400 h-16"></div>
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-500 h-24"></div>
 
-          <div className="px-8 pb-8">
+          <div className="px-8 pb-10">
 
             {/* PROFILE TOP */}
-            <div className="flex flex-col md:flex-row items-center md:items-end -mt-10 mb-6">
+            <div className="flex flex-col md:flex-row items-center md:items-end -mt-14 mb-8">
 
-              <div className="w-28 h-28 bg-white rounded-xl shadow flex items-center justify-center text-3xl text-blue-600 font-bold">
+              <div className="w-32 h-32 bg-white rounded-2xl shadow-xl flex items-center justify-center text-4xl text-blue-600 font-bold border">
                 {professional.name?.charAt(0)}
               </div>
 
-              <div className="md:ml-6 mt-4 flex-1">
-                <h2 className="text-2xl font-bold">{professional.name}</h2>
+              <div className="md:ml-6 mt-4 flex-1 text-center md:text-left">
+                <h2 className="text-3xl font-bold text-gray-900">{professional.name}</h2>
 
-                <div className="flex gap-3 mt-2 flex-wrap">
-                  <span className="bg-blue-100 px-3 py-1 rounded">
+                <div className="flex gap-3 mt-3 flex-wrap justify-center md:justify-start">
+                  <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
                     {professional.professionalType}
                   </span>
 
-                  <span className="flex items-center gap-1 text-yellow-500">
+                  <span className="flex items-center gap-1 text-yellow-500 text-sm">
                     <Star size={16} fill="currentColor" />
                     {professional.numReviews > 0
                       ? professional.rating.toFixed(1)
@@ -200,12 +186,11 @@ export default function ProfessionalProfile() {
                 </div>
               </div>
 
-              {/* ================= CONNECT BUTTON ================= */}
               {!isOwnProfile && (
                 <button
                   onClick={handleConnect}
                   disabled={connectionStatus !== "none" || sendingRequest}
-                  className={`mt-4 md:mt-0 px-6 py-2 rounded-lg text-white font-medium transition
+                  className={`mt-4 md:mt-0 px-6 py-3 rounded-xl text-white font-medium transition shadow-lg hover:shadow-xl
                     ${connectionStatus === "accepted" && "bg-green-500"}
                     ${connectionStatus === "pending" && "bg-yellow-500"}
                     ${connectionStatus === "none" && "bg-blue-600 hover:bg-blue-700"}
@@ -221,40 +206,37 @@ export default function ProfessionalProfile() {
             </div>
 
             {/* DETAILS */}
-            <div className="grid md:grid-cols-2 gap-6 mt-6">
+            <div className="grid md:grid-cols-2 gap-8">
 
-              <div className="space-y-3">
-                <h3 className="font-semibold">Contact</h3>
-
-                <p className="flex gap-2"><Mail size={16} /> {professional.email}</p>
-                {professional.phone && <p className="flex gap-2"><Phone size={16} /> {professional.phone}</p>}
-                {professional.address && <p className="flex gap-2"><MapPin size={16} /> {professional.address}</p>}
+              <div className="bg-gray-50 p-5 rounded-xl space-y-3">
+                <h3 className="font-semibold text-gray-800">Contact</h3>
+                <p className="flex gap-2 text-gray-600"><Mail size={16} /> {professional.email}</p>
+                {professional.phone && <p className="flex gap-2 text-gray-600"><Phone size={16} /> {professional.phone}</p>}
+                {professional.address && <p className="flex gap-2 text-gray-600"><MapPin size={16} /> {professional.address}</p>}
               </div>
 
-              <div className="space-y-3">
-                <h3 className="font-semibold">Professional</h3>
-
-                {professional.experience > 0 && <p className="flex gap-2"><Briefcase size={16} /> {professional.experience} yrs</p>}
-                {professional.qualification && <p className="flex gap-2"><Award size={16} /> {professional.qualification}</p>}
-                {professional.expertise && <p className="flex gap-2"><Globe size={16} /> {professional.expertise}</p>}
-                {professional.hourlyRate > 0 && <p className="flex gap-2"><DollarSign size={16} /> ${professional.hourlyRate}/hr</p>}
+              <div className="bg-gray-50 p-5 rounded-xl space-y-3">
+                <h3 className="font-semibold text-gray-800">Professional</h3>
+                {professional.experience > 0 && <p className="flex gap-2 text-gray-600"><Briefcase size={16} /> {professional.experience} yrs</p>}
+                {professional.qualification && <p className="flex gap-2 text-gray-600"><Award size={16} /> {professional.qualification}</p>}
+                {professional.expertise && <p className="flex gap-2 text-gray-600"><Globe size={16} /> {professional.expertise}</p>}
+                {professional.hourlyRate > 0 && <p className="flex gap-2 text-gray-600"><DollarSign size={16} /> ${professional.hourlyRate}/hr</p>}
               </div>
 
             </div>
 
-            {/* ================= SKILLS ================= */}
+            {/* SKILLS */}
             {professional.skills && professional.skills.length > 0 && (
-              <div className="mt-6">
-                <h3 className="font-semibold mb-2">Skills</h3>
-
-                <div className="flex flex-wrap gap-2">
+              <div className="mt-8">
+                <h3 className="font-semibold mb-3 text-gray-800">Skills</h3>
+                <div className="flex flex-wrap gap-3">
                   {(Array.isArray(professional.skills)
                     ? professional.skills
                     : professional.skills.split(",")
                   ).map((skill, index) => (
                     <span
                       key={index}
-                      className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
+                      className="bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-sm shadow-sm"
                     >
                       {skill.trim()}
                     </span>
@@ -265,9 +247,9 @@ export default function ProfessionalProfile() {
 
             {/* BIO */}
             {professional.bio && (
-              <div className="mt-6">
-                <h3 className="font-semibold mb-2">About</h3>
-                <p className="text-gray-600">{professional.bio}</p>
+              <div className="mt-8">
+                <h3 className="font-semibold mb-2 text-gray-800">About</h3>
+                <p className="text-gray-600 leading-relaxed">{professional.bio}</p>
               </div>
             )}
 

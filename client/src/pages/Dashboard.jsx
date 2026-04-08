@@ -33,23 +33,20 @@ const Dashboard = () => {
 
   const filteredCards = allCards.filter(card => card.roles.includes(role));
 
-  // ✅ Scroll to top whenever route changes
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-white">
 
       {/* HERO SECTION */}
       <div
         className="relative h-[80vh] bg-cover bg-center flex items-center"
         style={{ backgroundImage: "url('/images/hero-bg.jpg')" }}
       >
-        {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/60 to-black/40"></div>
 
-        {/* Content */}
         <div className="relative z-10 max-w-6xl mx-auto px-8 text-white">
           <h1 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
             Connect. Collaborate. Grow.
@@ -67,25 +64,32 @@ const Dashboard = () => {
       </div>
 
       {/* FEATURES SECTION */}
-      <div className="max-w-6xl mx-auto px-8 pb-16">
+      <div className="max-w-6xl mx-auto px-8 pb-20 mt-16 relative z-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredCards.map((card, index) => (
             <div
               key={index}
               onClick={() => navigate(card.path)}
-              className="cursor-pointer bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-gray-100"
+              className="group cursor-pointer bg-white/80 backdrop-blur-md rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-3 border border-gray-200"
             >
-              <div className="p-4 bg-blue-600 text-white rounded-xl w-fit mb-5">
-                {card.icon}
+              <div className="flex items-center justify-between mb-5">
+                <div className="p-4 bg-blue-600 text-white rounded-xl shadow-md group-hover:scale-110 transition">
+                  {card.icon}
+                </div>
+                <span className="text-xs text-gray-400 group-hover:text-blue-600 transition">
+                  Explore →
+                </span>
               </div>
 
-              <h2 className="text-xl font-semibold text-gray-800 mb-2">
+              <h2 className="text-xl font-semibold text-gray-800 mb-2 group-hover:text-blue-600 transition">
                 {card.title}
               </h2>
 
-              <p className="text-gray-500 text-sm">
-                Click to manage {card.title.toLowerCase()}.
+              <p className="text-gray-500 text-sm leading-relaxed">
+                Click to manage {card.title.toLowerCase()} and explore more features seamlessly.
               </p>
+
+              <div className="mt-6 h-1 w-0 bg-blue-600 rounded-full group-hover:w-full transition-all duration-300"></div>
             </div>
           ))}
         </div>

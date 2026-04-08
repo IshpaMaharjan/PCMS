@@ -9,12 +9,13 @@ export default function Connections() {
   const [connectionStatusMap, setConnectionStatusMap] = useState({});
   const [loading, setLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+
   const currentUser = JSON.parse(localStorage.getItem("user"));
   const dropdownRef = useRef(null);
 
   const localStorageKey = `searchResults_${currentUser.id}`;
 
-  /* ================= FETCH MY CONNECTIONS ================= */
+  /* ================= FETCH CONNECTIONS ================= */
   const fetchConnections = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/connections/my", {
@@ -27,35 +28,33 @@ export default function Connections() {
 
       const statusMap = {};
       res.data.forEach((conn) => {
-        if (conn.sender?._id && conn.receiver?._id) {
-          const otherUser =
-            conn.sender._id === currentUser.id
-              ? conn.receiver._id
-              : conn.sender._id;
-          statusMap[otherUser] = conn.status;
-        }
+        const otherUser =
+          conn.sender._id === currentUser.id
+            ? conn.receiver._id
+            : conn.sender._id;
+
+        statusMap[otherUser] = conn.status;
       });
+
       setConnectionStatusMap(statusMap);
     } catch (err) {
-      console.error("Error fetching connections:", err);
+      console.error(err);
     }
   };
 
-  /* ================= LOAD PREVIOUS SEARCH RESULTS ================= */
+  /* ================= INITIAL LOAD ================= */
   useEffect(() => {
     fetchConnections();
 
-    const savedUsers = localStorage.getItem(localStorageKey);
-    if (savedUsers) {
-      setUsers(JSON.parse(savedUsers));
-    }
+    const saved = localStorage.getItem(localStorageKey);
+    if (saved) setUsers(JSON.parse(saved));
   }, []);
 
-  /* ================= LIVE SEARCH (Debounce) ================= */
+  /* ================= LIVE SEARCH ================= */
   useEffect(() => {
     if (!keyword.trim()) return;
 
-    const delayDebounce = setTimeout(async () => {
+    const delay = setTimeout(async () => {
       try {
         setLoading(true);
 
@@ -79,16 +78,16 @@ export default function Connections() {
 
         setShowDropdown(true);
       } catch (err) {
-        console.error("Search error:", err);
+        console.error(err);
       } finally {
         setLoading(false);
       }
     }, 400);
 
-    return () => clearTimeout(delayDebounce);
+    return () => clearTimeout(delay);
   }, [keyword]);
 
-  /* ================= BUTTON SEARCH ================= */
+  /* ================= SEARCH BUTTON ================= */
   const handleSearch = async () => {
     if (!keyword.trim()) return;
 
@@ -114,123 +113,150 @@ export default function Connections() {
         return merged;
       });
     } catch (err) {
-      console.error("Search error:", err);
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  /* ================= CLOSE DROPDOWN ON OUTSIDE CLICK ================= */
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowDropdown(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  /* ================= SEND REQUEST ================= */
-  const handleSendRequest = async (receiverId) => {
-    try {
-      await axios.post(
-        `http://localhost:5000/api/connections/send/${receiverId}`,
-        {},
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-      );
-
-      setConnectionStatusMap((prev) => ({
-        ...prev,
-        [receiverId]: "pending",
-      }));
-
-      fetchConnections();
-    } catch (err) {
-      console.error("Send request error:", err);
-    }
+  /* ================= HANDLERS ================= */
+  const handleSendRequest = async (id) => {
+    await axios.post(
+      `http://localhost:5000/api/connections/send/${id}`,
+      {},
+      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+    );
+    fetchConnections();
   };
 
-  /* ================= ACCEPT REQUEST ================= */
-  const handleAcceptRequest = async (connectionId) => {
-    try {
-      await axios.put(
-        `http://localhost:5000/api/connections/accept/${connectionId}`,
-        {},
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-      );
+  const handleAcceptRequest = async (id) => {
+    await axios.put(
+      `http://localhost:5000/api/connections/accept/${id}`,
+      {},
+      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+    );
+    fetchConnections();
+  };
 
-      fetchConnections();
-    } catch (err) {
-      console.error("Accept request error:", err);
-    }
+  const handleRejectRequest = async (id) => {
+    await axios.put(
+      `http://localhost:5000/api/connections/reject/${id}`,
+      {},
+      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+    );
+    fetchConnections();
+  };
+
+  const handleCancelRequest = async (id) => {
+    await axios.delete(
+      `http://localhost:5000/api/connections/cancel/${id}`,
+      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+    );
+    fetchConnections();
+  };
+
+  const handleRemoveConnection = async (id) => {
+    await axios.delete(
+      `http://localhost:5000/api/connections/${id}`,
+      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+    );
+    fetchConnections();
+  };
+
+  /* ================= FIND CONNECTION ================= */
+  const getConnection = (userId) => {
+    return connections.find(
+      (c) =>
+        c.sender._id === userId || c.receiver._id === userId
+    );
   };
 
   /* ================= UI ================= */
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 md:px-8">
       <div className="max-w-5xl mx-auto">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">Connections</h2>
+        <h2 className="text-2xl font-bold mb-6">Connections</h2>
 
-        {/* Search */}
+        {/* SEARCH */}
         <div className="relative mb-6 flex gap-3">
           <input
-            type="text"
-            placeholder="Search for users..."
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            className="flex-1 border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
+            placeholder="Search users..."
+            className="flex-1 border p-3 rounded-lg"
           />
           <button
             onClick={handleSearch}
-            className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition shadow"
+            className="bg-blue-600 text-white px-5 py-2 rounded"
           >
             Search
           </button>
 
+          {/* DROPDOWN */}
           {showDropdown && users.length > 0 && (
             <div
               ref={dropdownRef}
-              className="absolute top-14 left-0 w-full bg-white border rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto"
+              className="absolute top-14 w-full bg-white border rounded shadow max-h-60 overflow-y-auto"
             >
               {users.map((user) => {
                 const status = connectionStatusMap[user._id] || "none";
+                const conn = getConnection(user._id);
+
                 return (
                   <div
                     key={user._id}
-                    onClick={() => setShowDropdown(false)}
-                    className="flex justify-between items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    className="flex justify-between px-4 py-2 hover:bg-gray-100"
                   >
                     <div>
-                      <p className="font-medium">{user.name}</p>
+                      <p>{user.name}</p>
                       <p className="text-sm text-gray-500">{user.role}</p>
                     </div>
-                    <div>
-                      {status === "none" && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSendRequest(user._id);
-                          }}
-                          className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
-                        >
-                          Connect
-                        </button>
+
+                    {/* STATUS UI */}
+                    {status === "none" && (
+                      <button
+                        onClick={() => handleSendRequest(user._id)}
+                        className="bg-blue-600 text-white px-3 py-1 rounded"
+                      >
+                        Connect
+                      </button>
+                    )}
+
+                    {status === "pending" &&
+                      conn?.sender._id === currentUser.id && (
+                        <div className="flex gap-2 items-center">
+                          <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-sm">
+                            Pending
+                          </span>
+                          <button
+                            onClick={() => handleCancelRequest(conn._id)}
+                            className="text-red-500 text-sm"
+                          >
+                            Cancel
+                          </button>
+                        </div>
                       )}
-                      {status === "pending" && (
-                        <span className="bg-yellow-200 text-yellow-800 px-3 py-1 rounded">
+
+                    {status === "pending" &&
+                      conn?.receiver._id === currentUser.id && (
+                        <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-sm">
                           Pending
                         </span>
                       )}
-                      {status === "accepted" && (
-                        <span className="bg-green-200 text-green-800 px-3 py-1 rounded">
+
+                    {status === "accepted" && (
+                      <div className="flex gap-2 items-center">
+                        <span className="bg-green-100 text-green-700 px-2 py-1 rounded text-sm">
                           Connected
                         </span>
-                      )}
-                    </div>
+                        <button
+                          onClick={() => handleRemoveConnection(conn._id)}
+                          className="text-red-500 text-sm"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -238,77 +264,98 @@ export default function Connections() {
           )}
         </div>
 
-        {/* Search Results */}
-        <h3 className="text-xl font-semibold mb-3 text-gray-700">Search Results</h3>
-        {users.length === 0 && !loading && (
-          <p className="text-gray-500 mb-4">
-            No users found yet. Start typing to search.
-          </p>
-        )}
-
+        {/* SEARCH RESULTS */}
         <div className="grid gap-4">
           {users.map((user) => {
             const status = connectionStatusMap[user._id] || "none";
+            const conn = getConnection(user._id);
+
             return (
               <div
                 key={user._id}
-                className="flex items-center justify-between bg-white p-4 rounded-xl shadow hover:shadow-xl transition"
+                className="flex justify-between bg-white p-4 rounded shadow"
               >
                 <div>
-                  <p className="font-semibold">{user.name}</p>
+                  <p>{user.name}</p>
                   <p className="text-sm text-gray-500">{user.role}</p>
                 </div>
-                <div>
-                  {status === "none" && (
-                    <button
-                      onClick={() => handleSendRequest(user._id)}
-                      className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
-                    >
-                      Connect
-                    </button>
+
+                {/* STATUS UI */}
+                {status === "none" && (
+                  <button onClick={() => handleSendRequest(user._id)}>
+                    Connect
+                  </button>
+                )}
+
+                {status === "pending" &&
+                  conn?.sender._id === currentUser.id && (
+                    <div className="flex gap-2 items-center">
+                      <span className="bg-yellow-100 px-2 py-1 rounded text-sm">
+                        Pending
+                      </span>
+                      <button onClick={() => handleCancelRequest(conn._id)}>
+                        Cancel
+                      </button>
+                    </div>
                   )}
-                  {status === "pending" && (
-                    <span className="bg-yellow-200 text-yellow-800 px-4 py-2 rounded">
+
+                {status === "pending" &&
+                  conn?.receiver._id === currentUser.id && (
+                    <span className="bg-yellow-100 px-2 py-1 rounded text-sm">
                       Pending
                     </span>
                   )}
-                  {status === "accepted" && (
-                    <span className="bg-green-200 text-green-800 px-4 py-2 rounded">
+
+                {status === "accepted" && (
+                  <div className="flex gap-2 items-center">
+                    <span className="bg-green-100 px-2 py-1 rounded text-sm">
                       Connected
                     </span>
-                  )}
-                </div>
+                    <button onClick={() => handleRemoveConnection(conn._id)}>
+                      Remove
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
 
-        {/* Received Requests */}
-        <h3 className="text-xl font-semibold mt-10 mb-3 text-gray-700">
-          Received Requests
-        </h3>
-        <div className="grid gap-4">
-          {connections
-            .filter((c) => c.receiver?._id === currentUser.id && c.status === "pending")
-            .map((c) => (
-              <div
-                key={c._id}
-                className="flex items-center justify-between bg-white p-4 rounded-xl shadow hover:shadow-xl transition"
-              >
-                <p className="font-semibold">{c.sender?.name}</p>
+        {/* RECEIVED REQUESTS */}
+        <h3 className="mt-10 mb-3 font-semibold">Received Requests</h3>
+        {connections
+          .filter(
+            (c) =>
+              c.receiver._id === currentUser.id &&
+              c.status === "pending"
+          )
+          .map((c) => (
+            <div
+              key={c._id}
+              className="flex justify-between bg-white p-4 rounded shadow mb-3"
+            >
+              <p>{c.sender.name}</p>
+
+              <div className="flex gap-2">
                 <button
                   onClick={() => handleAcceptRequest(c._id)}
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                  className="bg-green-600 text-white px-3 py-1 rounded"
                 >
                   Accept
                 </button>
+                <button
+                  onClick={() => handleRejectRequest(c._id)}
+                  className="bg-red-500 text-white px-3 py-1 rounded"
+                >
+                  Reject
+                </button>
               </div>
-            ))}
-        </div>
+            </div>
+          ))}
 
         {loading && (
           <div className="flex justify-center mt-4">
-            <Loader className="w-8 h-8 text-blue-600 animate-spin" />
+            <Loader className="animate-spin" />
           </div>
         )}
       </div>

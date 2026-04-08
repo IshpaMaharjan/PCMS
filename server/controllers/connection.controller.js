@@ -73,6 +73,77 @@ export const acceptRequest = async (req, res) => {
   }
 };
 
+/* REJECT REQUEST */
+export const rejectRequest = async (req, res) => {
+  try {
+    const connection = await Connection.findById(req.params.id);
+
+    if (!connection) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+
+    if (connection.receiver.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    connection.status = "rejected";
+    await connection.save();
+
+    res.json({ message: "Request rejected" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/* CANCEL SENT REQUEST */
+export const cancelRequest = async (req, res) => {
+  try {
+    const connection = await Connection.findById(req.params.id);
+
+    if (!connection) {
+      return res.status(404).json({ message: "Request not found" });
+    }
+
+    if (connection.sender.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    if (connection.status !== "pending") {
+      return res.status(400).json({ message: "Only pending requests can be cancelled" });
+    }
+
+    await connection.deleteOne();
+
+    res.json({ message: "Request cancelled" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/* REMOVE CONNECTION */
+export const removeConnection = async (req, res) => {
+  try {
+    const connection = await Connection.findById(req.params.id);
+
+    if (!connection) {
+      return res.status(404).json({ message: "Connection not found" });
+    }
+
+    if (
+      connection.sender.toString() !== req.user._id.toString() &&
+      connection.receiver.toString() !== req.user._id.toString()
+    ) {
+      return res.status(403).json({ message: "Not authorized" });
+    }
+
+    await connection.deleteOne();
+
+    res.json({ message: "Connection removed" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 /* GET MY CONNECTIONS */
 export const getMyConnections = async (req, res) => {
   try {
