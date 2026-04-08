@@ -193,7 +193,9 @@ export default function ProfessionalProfile() {
 
                   <span className="flex items-center gap-1 text-yellow-500">
                     <Star size={16} fill="currentColor" />
-                    {professional.rating || 4.5}
+                    {professional.numReviews > 0
+                      ? professional.rating.toFixed(1)
+                      : "No ratings"}
                   </span>
                 </div>
               </div>
@@ -239,6 +241,27 @@ export default function ProfessionalProfile() {
               </div>
 
             </div>
+
+            {/* ================= SKILLS ================= */}
+            {professional.skills && professional.skills.length > 0 && (
+              <div className="mt-6">
+                <h3 className="font-semibold mb-2">Skills</h3>
+
+                <div className="flex flex-wrap gap-2">
+                  {(Array.isArray(professional.skills)
+                    ? professional.skills
+                    : professional.skills.split(",")
+                  ).map((skill, index) => (
+                    <span
+                      key={index}
+                      className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
+                    >
+                      {skill.trim()}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* BIO */}
             {professional.bio && (

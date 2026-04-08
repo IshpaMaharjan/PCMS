@@ -1,4 +1,5 @@
 import Appointment from "../models/Appointment.model.js";
+import User from "../models/User.model.js";
 
 /* ================= BOOK ================= */
 export const bookAppointment = async (req, res) => {
@@ -126,6 +127,52 @@ export const getUserAppointments = async (req, res) => {
 
     res.json(appointments);
   } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+/* ================= RATE PROFESSIONAL ================= */
+export const rateProfessional = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { rating } = req.body;
+
+    const appointment = await Appointment.findById(id);
+
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    // Only allow rating if accepted
+    if (appointment.status !== "accepted") {
+      return res.status(400).json({ message: "Cannot rate this appointment" });
+    }
+
+    // Prevent duplicate rating
+    if (appointment.rating) {
+      return res.status(400).json({ message: "Already rated" });
+    }
+
+    // Save rating
+    appointment.rating = rating;
+    await appointment.save();
+
+    /* ================= UPDATE PROFESSIONAL AVG RATING ================= */
+    const professional = await User.findById(appointment.professional);
+
+    const totalRating =
+      professional.rating * professional.numReviews + rating;
+
+    professional.numReviews += 1;
+    professional.rating = totalRating / professional.numReviews;
+
+    await professional.save();
+
+    res.json({ message: "Rating submitted successfully" });
+
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 };
