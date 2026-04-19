@@ -17,25 +17,37 @@ export const sendRequest = async (req, res) => {
     if (!receiverExists) {
       return res.status(404).json({ message: "User not found" });
     }
-    // Prevent duplicate in both directions
+
+    // If a rejected connection exists between these two users, delete it
+    // so a fresh request can be sent safely
+    await Connection.deleteOne({
+      $or: [
+        { sender: senderId, receiver: receiverId, status: "rejected" },
+        { sender: receiverId, receiver: senderId, status: "rejected" },
+      ],
+    });
+
+    // Prevent duplicate pending/accepted in both directions
     const existing = await Connection.findOne({
       $or: [
         { sender: senderId, receiver: receiverId },
-        { sender: receiverId, receiver: senderId }
-      ]
+        { sender: receiverId, receiver: senderId },
+      ],
     });
     if (existing) {
       return res.status(400).json({ message: "Request already exists" });
     }
+
     const connection = await Connection.create({
       sender: senderId,
       receiver: receiverId,
       status: "pending",
     });
+
     // Populate sender & receiver for frontend UI
     await connection.populate([
       { path: "sender", select: "name role" },
-      { path: "receiver", select: "name role" }
+      { path: "receiver", select: "name role" },
     ]);
 
     res.status(201).json(connection);
@@ -64,7 +76,7 @@ export const acceptRequest = async (req, res) => {
     // Populate for frontend UI
     await connection.populate([
       { path: "sender", select: "name role" },
-      { path: "receiver", select: "name role" }
+      { path: "receiver", select: "name role" },
     ]);
 
     res.json(connection);
@@ -150,7 +162,7 @@ export const getMyConnections = async (req, res) => {
     const userId = req.user._id;
 
     const connections = await Connection.find({
-      $or: [{ sender: userId }, { receiver: userId }]
+      $or: [{ sender: userId }, { receiver: userId }],
     })
       .populate("sender", "name role")
       .populate("receiver", "name role");
@@ -161,25 +173,26 @@ export const getMyConnections = async (req, res) => {
   }
 };
 
-/* SEARCH USERS*/
+/* SEARCH USERS */
 export const searchUsers = async (req, res) => {
   try {
     const keyword = req.query.keyword || "";
-    const currentUserId = req.user._id; // from auth middleware
+    const currentUserId = req.user._id;
 
     if (!keyword.trim()) {
       return res.json([]);
     }
 
     const users = await User.find({
-      _id: { $ne: currentUserId }, // exclude self
+      _id: { $ne: currentUserId },
+      role: { $ne: "admin" }, // exclude admin users from search
       $or: [
-        { name: { $regex: keyword, $options: "i" } }, // search by name
-        { role: { $regex: keyword, $options: "i" } },  // search by role
-        { professionalType: { $regex: keyword, $options: "i" } }, // search by profession type
+        { name: { $regex: keyword, $options: "i" } },
+        { role: { $regex: keyword, $options: "i" } },
+        { professionalType: { $regex: keyword, $options: "i" } },
       ],
     })
-      .select("name role") // do not include password
+      .select("name role")
       .lean();
 
     res.json(users);
@@ -197,13 +210,13 @@ export const getProfessionalsByRole = async (req, res) => {
     console.log("Fetching professionals for role:", role);
 
     const professionals = await User.find({
-      role: "professional", // Users with role="professional"
+      role: "professional",
       $or: [
-        { professionalType: { $regex: new RegExp(`^${role}$`, 'i') } }, // Case-insensitive match
-        { profession: { $regex: new RegExp(`^${role}$`, 'i') } },
-        { jobTitle: { $regex: new RegExp(`^${role}$`, 'i') } }
-      ]
-    }).select("-password"); // Exclude password
+        { professionalType: { $regex: new RegExp(`^${role}$`, "i") } },
+        { profession: { $regex: new RegExp(`^${role}$`, "i") } },
+        { jobTitle: { $regex: new RegExp(`^${role}$`, "i") } },
+      ],
+    }).select("-password");
 
     console.log(`Found ${professionals.length} professionals`);
     res.json(professionals);

@@ -92,8 +92,9 @@ function BookAppointment() {
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
+        // Fix: compare as strings to avoid ObjectId strict equality mismatch
         setBookedAppointments((prev) =>
-          prev.filter((a) => a._id !== existing._id)
+          prev.filter((a) => a._id.toString() !== existing._id.toString())
         );
 
         alert("Appointment cancelled successfully!");

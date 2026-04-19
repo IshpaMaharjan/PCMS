@@ -138,7 +138,7 @@ function Vacancies() {
               onClick={handleCreate}
               className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition mt-2"
             >
-              Post Vacancy
+              Post Slot
             </button>
           </div>
         )}

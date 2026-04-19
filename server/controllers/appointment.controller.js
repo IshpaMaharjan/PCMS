@@ -17,7 +17,7 @@ export const bookAppointment = async (req, res) => {
     const existing = await Appointment.findOne({
       professional: professionalId,
       date: { $gte: start, $lte: end },
-      status: { $in: ["pending", "accepted"] }, // ✅ only active bookings
+      status: { $in: ["pending", "accepted"] },
     });
 
     if (existing) {
@@ -45,7 +45,7 @@ export const getBookedDates = async (req, res) => {
   try {
     const appointments = await Appointment.find({
       professional: req.params.id,
-      status: { $in: ["pending", "accepted"] }, // ✅ ignore rejected
+      status: { $in: ["pending", "accepted"] },
     });
 
     res.json(appointments);
@@ -99,16 +99,21 @@ export const rejectAppointment = async (req, res) => {
   }
 };
 
-/* ================= CANCEL (USER) ================= */
+/* ================= CANCEL (USER WHO BOOKED ONLY) ================= */
 export const cancelAppointment = async (req, res) => {
   try {
     const appointment = await Appointment.findById(req.params.id);
 
     if (!appointment) {
-      return res.status(404).json({ message: "Not found" });
+      return res.status(404).json({ message: "Appointment not found" });
     }
 
-    await Appointment.findByIdAndDelete(req.params.id); // ✅ DELETE
+    // Only the user who booked can cancel
+    if (appointment.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: "Not authorized to cancel this appointment" });
+    }
+
+    await Appointment.findByIdAndDelete(req.params.id);
 
     res.json({ message: "Cancelled successfully" });
   } catch (error) {
@@ -130,7 +135,6 @@ export const getUserAppointments = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 /* ================= RATE PROFESSIONAL ================= */
 export const rateProfessional = async (req, res) => {
@@ -170,7 +174,6 @@ export const rateProfessional = async (req, res) => {
     await professional.save();
 
     res.json({ message: "Rating submitted successfully" });
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
