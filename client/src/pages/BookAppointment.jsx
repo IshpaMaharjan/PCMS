@@ -1,4 +1,3 @@
-// src/pages/BookAppointment.jsx
 import { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
@@ -92,7 +91,6 @@ function BookAppointment() {
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        // Fix: compare as strings to avoid ObjectId strict equality mismatch
         setBookedAppointments((prev) =>
           prev.filter((a) => a._id.toString() !== existing._id.toString())
         );
@@ -125,7 +123,11 @@ function BookAppointment() {
   const disablePastDates = ({ date }) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    return date < today;
+
+    const sixMonthsLater = new Date(today);
+    sixMonthsLater.setMonth(sixMonthsLater.getMonth() + 6);
+
+    return date < today || date > sixMonthsLater;
   };
 
   const tileClassName = ({ date }) => {
