@@ -11,6 +11,8 @@ function BookAppointment() {
     "Plumber",
     "Electrician",
     "Designer",
+    "Photographer",
+    "Babysitter",
   ];
 
   const [selectedService, setSelectedService] = useState("");
@@ -23,10 +25,7 @@ function BookAppointment() {
 
   /* ================= FETCH PROFESSIONALS ================= */
   useEffect(() => {
-    if (!selectedService) {
-      setProfessionals([]);
-      return;
-    }
+    if (!selectedService) return; // ✅ FIXED
 
     const fetchProfessionals = async () => {
       try {
@@ -44,10 +43,7 @@ function BookAppointment() {
 
   /* ================= FETCH BOOKED ================= */
   useEffect(() => {
-    if (!selectedProfessional) {
-      setBookedAppointments([]);
-      return;
-    }
+    if (!selectedProfessional) return; // ✅ FIXED
 
     const fetchBooked = async () => {
       try {
@@ -171,6 +167,7 @@ function BookAppointment() {
             onChange={(e) => {
               setSelectedService(e.target.value);
               setSelectedProfessional(null);
+              setProfessionals([]);        // ✅ reset moved here
               setBookedAppointments([]);
               setSelectedDay(null);
             }}

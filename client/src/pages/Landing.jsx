@@ -84,7 +84,7 @@ function Landing() {
       <section className="px-6 md:px-10 py-24">
         <h3 className="text-center text-3xl font-bold mb-16 text-gray-800">How PCMS Works</h3>
         <div className="grid md:grid-cols-4 gap-8 max-w-7xl mx-auto">
-          <StepCard step="1" title="Sign Up" desc="Create your account and get verified." />
+          <StepCard step="1" title="Sign Up" desc="Create your account." />
           <StepCard step="2" title="Complete Profile" desc="Add skills, experience, and portfolio." />
           <StepCard step="3" title="Discover & Connect" desc="Find professionals or services and connect." />
           <StepCard step="4" title="Manage & Grow" desc="Schedule meetings, track updates, and grow your network." />
